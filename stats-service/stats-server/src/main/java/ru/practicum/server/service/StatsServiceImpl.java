@@ -22,15 +22,14 @@ public class StatsServiceImpl implements StatsService {
 
     @Transactional
     @Override
-    public void addEndpointHit(EndpointHitDto endpointHitDto) {
+    public void addStats(EndpointHitDto endpointHitDto) {
         statsRepository.save(EndpointHitMapper.fromDto(endpointHitDto));
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (end.isBefore(start)) {
-            throw new ValidationException("_End_ time cannot be early than _Start_ time!!!");
+            throw new ValidationException("End time cannot be early than Start time!!!");
         }
         List<ViewStats> viewStats = unique ? statsRepository.getViewStatsWithUniqueIp(start, end, uris) :
                 statsRepository.getViewStatsWithAnyIp(start, end, uris);
