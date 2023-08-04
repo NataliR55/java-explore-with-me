@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.dto.Constants;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -26,6 +27,6 @@ public class EndpointHit {
     @Column(nullable = false)
     private String ip;
     @Column(nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constants.DATE_TIME_PATTERN)
     private LocalDateTime timestamp;
 }
