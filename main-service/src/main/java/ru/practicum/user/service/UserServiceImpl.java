@@ -9,8 +9,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+
     @Override
     public UserDto addUser(UserDto userDto) {
         return null;
@@ -18,11 +19,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public List<UserDto> getUser(Long[] userIds, Integer from, Integer size) {
-        return null;
+        return List.of();
     }
 
     @Override
     public void deleteUser(Long userId) {
-
     }
 }

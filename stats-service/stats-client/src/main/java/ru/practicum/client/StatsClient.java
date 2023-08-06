@@ -11,13 +11,13 @@ import ru.practicum.dto.Constants;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 
-import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,18 +31,19 @@ public class StatsClient {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<EndpointHitDto> requestEntity = new HttpEntity<>(endpointHitDto, headers);
-        restTemplate.postForEntity(URI.create(serverUrl + "/hit"), requestEntity, EndpointHitDto.class);
+        restTemplate.postForEntity(serverUrl.concat("/hit"), requestEntity, EndpointHitDto.class);
     }
 
     public List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        Map<String, Object> parameters = Map.of("start", start.format(Constants.DATE_TIME_FORMATTER),
-                "end", end.format(Constants.DATE_TIME_FORMATTER),
-                "uris", uris,
-                "unique", unique);
-        ResponseEntity<ViewStatsDto[]> response = restTemplate.getForEntity(
-                serverUrl + "/stats?start={start}&end={end}&uris={uris}&unique={unique}",
+        String startStr = start.format(Constants.DATE_TIME_FORMATTER);
+        String endStr = end.format(Constants.DATE_TIME_FORMATTER);
+        Map<String, Object> parameters = Map.of("start", URLEncoder.encode(startStr, StandardCharsets.UTF_8),
+                "end", URLEncoder.encode(endStr, StandardCharsets.UTF_8),
+                "uris", uris != null ? uris.toString() : "null",
+                "unique", unique.toString());
+        ViewStatsDto[] viewStatsDto = restTemplate.getForObject(
+                serverUrl.concat("/stats?start={start}&end={end}&uris={uris}&unique={unique}"),
                 ViewStatsDto[].class, parameters);
-        return response.getStatusCode().is2xxSuccessful() ? Arrays.stream(response.getBody())
-                .collect(Collectors.toList()) : Collections.emptyList();
+        return viewStatsDto == null ? Collections.emptyList() : List.of(viewStatsDto);
     }
 }
