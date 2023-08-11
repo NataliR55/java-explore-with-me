@@ -1,18 +1,19 @@
-package ru.practicum.user.dto;
+package ru.practicum.category.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserShortDto {
-    @NotNull
+
+public class CategoryDto {
     private Long id;
-    @NotBlank(message = "Name must be filled!")
+    @Size(min = 1, max = 50)
+    @NotBlank
     private String name;
 }

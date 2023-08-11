@@ -1,4 +1,4 @@
-package ru.practicum.user.model;
+package ru.practicum.location;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,18 +7,16 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "users")
 @Data
-@Builder
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+@Builder
+@Table(name = "locations")
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private String name;
-    @Column(nullable = false, unique = true)
-    private String email;
+    private Float lat;
+    private Float lon;
 }

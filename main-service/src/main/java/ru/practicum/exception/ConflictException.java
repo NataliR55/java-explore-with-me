@@ -3,9 +3,9 @@ package ru.practicum.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class ArgumentException extends RuntimeException {
-    public ArgumentException(String message) {
+@ResponseStatus(value = HttpStatus.CONFLICT)
+public class ConflictException extends RuntimeException {
+    public ConflictException(String message) {
         super(message);
     }
 }
