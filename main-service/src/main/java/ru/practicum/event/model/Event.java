@@ -1,10 +1,9 @@
 package ru.practicum.event.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.event.model.EventEnum.EventState;
-import ru.practicum.location.Location;
+import lombok.*;
+import ru.practicum.category.model.Category;
+import ru.practicum.enums.EventState;
+import ru.practicum.location.model.Location;
 import ru.practicum.user.model.User;
 
 import javax.persistence.*;
@@ -12,42 +11,56 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")
-@Data
+@Getter
+@Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    @Column(name = "annotation")
-    String annotation;
-    @Column(name = "confirmed_requests")
-    Long confirmedRequests;
-    @Column(name = "created_on")
-    LocalDateTime createdOn;
-    @Column(name = "description")
-    String description;
-    @Column(name = "event_date")
-    LocalDateTime eventDate;
+    private Long id;
+
+    @Column(nullable = false, length = 120)
+    private String title;
+    @Column(nullable = false, length = 2000)
+    private String annotation;
+    @Column(nullable = false, length = 7000)
+    private String description;
+
+    @Column(name = "created_on", nullable = false)
+    private LocalDateTime createdOn;
+    @Column(name = "event_date", nullable = false)
+    private LocalDateTime eventDate;
+    @Column(name = "published_on")
+    private LocalDateTime publishedOn;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")
-    User initiator;
+    private User initiator;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
+
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", referencedColumnName = "id")
-    Location location;
-    @Column(name = "paid")
-    Boolean paid;
+    private Location location;
+
+    @Column(name = "confirmed_requests")
+    private Long confirmedRequests;
+
+    @Column(name = "paid", nullable = false)
+    private Boolean paid;
+
     @Column(name = "participant_limit")
-    int participantLimit;
-    @Column(name = "published_on")
-    LocalDateTime publishedOn;
+    private Integer participantLimit;
+
     @Column(name = "request_moderation")
-    Boolean requestModeration;
-    @Column(name = "state")
+    private Boolean requestModeration;
+
+    @Column(name = "state", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    EventState state;
-    @Column(name = "title")
-    String title;
-    @Column(name = "views")
-    Long views;
+    private EventState state;
 }

@@ -3,7 +3,7 @@ package ru.practicum.compilation.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.event.model.EventShortDto;
+import ru.practicum.event.dto.EventShortDto;
 
 import java.util.List;
 
