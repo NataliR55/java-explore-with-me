@@ -1,8 +1,8 @@
 package ru.practicum.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.location.dto.LocationDto;
 import ru.practicum.user.dto.UserShortDto;
@@ -10,8 +10,12 @@ import ru.practicum.util.ConvertDataTime;
 
 import java.time.LocalDateTime;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
-@Value
 public class EventFullDto {
     String annotation;
     CategoryDto category;

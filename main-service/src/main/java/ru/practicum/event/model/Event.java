@@ -35,7 +35,6 @@ public class Event {
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "initiator_id", referencedColumnName = "id")
     private User initiator;

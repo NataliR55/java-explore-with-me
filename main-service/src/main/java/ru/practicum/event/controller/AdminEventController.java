@@ -1,63 +1,46 @@
 package ru.practicum.event.controller;
 
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.dto.Constants;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.UpdateEventAdminRequestDto;
+import ru.practicum.event.service.EventService;
 
-
-import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Validated
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping(path = "/admin/events")
 public class AdminEventController {
-    /*
-    private final EventAdminService eventAdminService;
-
-    @PatchMapping("/{eventId}")
-    EventFullDto update(@PathVariable Long eventId,
-                        @Validated @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
-                        HttpServletRequest request) {
-        return eventAdminService.update(eventId, updateEventAdminRequest, request);
-    }
+    private final EventService eventService;
 
     @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    List<EventFullDto> get(@RequestParam(required = false) List<Long> users,
-                           @RequestParam(required = false) List<String> states,
-                           @RequestParam(required = false) List<Long> categories,
-                           @RequestParam(required = false) String rangeStart,
-                           @RequestParam(required = false) String rangeEnd,
-                           @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                           @Positive @RequestParam(defaultValue = "10") Integer size,
-                           HttpServletRequest request) {
-
-        return eventAdminService.get(users, states, categories, rangeStart, rangeEnd, from, size, request);
-    }
-*/
-    //todo delete !!!!!
-    /*StatsClient statsClient;
-    @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addStats(@RequestBody @Valid EndpointHitDto endpointHitDto) {
-        statsClient.addStats(endpointHitDto);
+    public Collection<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                              @RequestParam(required = false) List<String> states,
+                                              @RequestParam(required = false) List<Long> categories,
+                                              @RequestParam(required = false)
+                                              @DateTimeFormat(pattern = Constants.DATE_TIME_PATTERN) LocalDateTime rangeStart,
+                                              @RequestParam(required = false)
+                                              @DateTimeFormat(pattern = Constants.DATE_TIME_PATTERN) LocalDateTime rangeEnd,
+                                              @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                              @RequestParam(defaultValue = "10") @Positive Integer size) {
+        PageRequest page = PageRequest.of(from, size);
+        return eventService.getEventsAdmin(users, states, categories, rangeStart, rangeEnd, page);
     }
 
-    @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
-    public List<ViewStatsDto> getViewStats(
-            @RequestParam(name = "start") @DateTimeFormat(pattern = Constants.DATE_TIME_PATTERN) LocalDateTime start,
-            @RequestParam(name = "end") @DateTimeFormat(pattern = Constants.DATE_TIME_PATTERN) LocalDateTime end,
-            @RequestParam(name = "uris", required = false) List<String> uris,
-            @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
-        return statsClient.getViewStats(start, end, uris, unique);
+    @PatchMapping("{eventId}")
+    public EventFullDto updateEventAdmin(@PathVariable(name = "eventId") @Positive Long eventId,
+                                         @RequestBody @Valid UpdateEventAdminRequestDto updateEventAdminRequest) {
+        return eventService.updateEventAdmin(eventId, updateEventAdminRequest);
     }
-
-     */
 }

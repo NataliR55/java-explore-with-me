@@ -28,6 +28,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     boolean existsByCategory(Category category);
 
+    boolean existsByIdAndInitiatorId(Long eventId, Long userId);
+
     Optional<Event> findByIdAndInitiatorId(Long eventId, Long userId);
 
     Set<Event> findAllByIdIn(Set<Long> eventIds);
