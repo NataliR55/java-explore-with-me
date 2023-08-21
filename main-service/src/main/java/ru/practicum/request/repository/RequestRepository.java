@@ -1,7 +1,7 @@
 package ru.practicum.request.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.enums.RequestStatus;
+import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.model.Request;
 

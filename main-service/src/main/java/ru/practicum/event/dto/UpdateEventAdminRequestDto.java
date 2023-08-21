@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.enums.EventStateAction;
+import ru.practicum.event.model.enums.EventStateAction;
 import ru.practicum.location.dto.LocationDto;
 import ru.practicum.util.ConvertDataTime;
 

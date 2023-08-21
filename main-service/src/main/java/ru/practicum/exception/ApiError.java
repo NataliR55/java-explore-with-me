@@ -10,8 +10,6 @@ import java.time.LocalDateTime;
 @Slf4j
 @Getter
 public class ApiError {
-    //todo
-//    private List<String> errors; //Список стектрейсов или описания ошибок
     private final String message; //Сообщение об ошибке
     private final String reason; //Общее описание причины ошибки
     private final String status; //Код статуса HTTP-ответа,example: FORBIDDEN
@@ -19,8 +17,6 @@ public class ApiError {
 
     public ApiError(Exception e, String reason, String status) {
         log.error(e.getMessage(), e);
-
-  //      this.errors = Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList());
         this.message = e.getMessage();
         this.reason = reason;
         this.status = status;

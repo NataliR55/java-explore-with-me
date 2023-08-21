@@ -6,10 +6,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-
 @RestControllerAdvice()
 public class ErrorHandler {
     @ExceptionHandler
@@ -39,19 +35,11 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        //todo
         String strError = e.getMessage();
         String strSubString = "default message";
         int index = strError.lastIndexOf(strSubString);
         String strMessage = index == 0 ? "" : strError.substring(index + strSubString.length());
         strError = String.format("400. Method argument not valid: %s", strMessage.isBlank() ? strError : strMessage);
-/*        List<String> errors = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + " -> " + error.getDefaultMessage())
-                .collect(Collectors.toList());
-        String strError = String.format("Method argument not valid: %s", errors);
- */
         return new ApiError(e, strError, HttpStatus.BAD_REQUEST.name());
     }
 

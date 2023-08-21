@@ -59,14 +59,14 @@ public class PrivateEventController {
         return eventService.getEventsUser(userId, page);
     }
 
-    @GetMapping("{eventId}")
+    @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto getFullEventUser(@PathVariable(name = "userId") @Positive Long userId,
                                          @PathVariable(name = "eventId") @Positive Long eventId) {
         return eventService.getFullEventUser(userId, eventId);
     }
 
-    @GetMapping("{eventId}/requests")
+    @GetMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllRequestsByEventId(@PathVariable(name = "userId") @Positive Long userId,
                                                                  @PathVariable(name = "eventId") @Positive Long eventId) {

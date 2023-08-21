@@ -50,7 +50,7 @@ create TABLE IF NOT EXISTS compilations(
 create TABLE IF NOT EXISTS compilations_events(
     compilation_id BIGINT REFERENCES compilations (id) ON delete CASCADE NOT NULL,
     event_id BIGINT REFERENCES events (id) ON delete CASCADE NOT NULL,
-    CONSTRAINT compilation_event_pk PRIMARY KEY(compilation_id, event_id)
+    CONSTRAINT compilation_event_pk UNIQUE PRIMARY KEY(compilation_id, event_id)
 );
 
 create TABLE IF NOT EXISTS comments(

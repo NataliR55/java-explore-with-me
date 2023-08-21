@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.enums.EventStateAction;
+import ru.practicum.event.model.enums.EventStateActionUser;
 import ru.practicum.location.dto.LocationDto;
 import ru.practicum.util.ConvertDataTime;
 
@@ -32,7 +32,7 @@ public class UpdateEventUserRequestDto {
     @PositiveOrZero
     private Integer participantLimit;
     private Boolean requestModeration;
-    private EventStateAction stateAction;
+    private EventStateActionUser stateAction;
     @Size(min = 3, max = 120)
     private String title;
 }

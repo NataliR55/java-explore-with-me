@@ -9,6 +9,8 @@ import java.time.format.DateTimeParseException;
 public interface ConvertDataTime {
     String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+    LocalDateTime MIN_DATE_TIME = LocalDateTime.of(1900, 1, 1, 1, 1, 1);
+    LocalDateTime MAX_DATE_TIME = LocalDateTime.of(4000, 1, 1, 1, 1, 1);
 
     static LocalDateTime formatDateTime(String dateTime) {
         LocalDateTime newDateTime;
