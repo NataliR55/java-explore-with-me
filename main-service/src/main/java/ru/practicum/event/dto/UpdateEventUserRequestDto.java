@@ -9,7 +9,6 @@ import ru.practicum.event.model.enums.EventStateActionUser;
 import ru.practicum.location.dto.LocationDto;
 import ru.practicum.util.ConvertDataTime;
 
-import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
