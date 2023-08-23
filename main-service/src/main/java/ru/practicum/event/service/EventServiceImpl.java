@@ -337,6 +337,14 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
+    private void setComfirmedRequestsEventShortDto(List<EventShortDto> events) {
+        List<Long> ids = events.stream().map(EventShortDto::getId).collect(Collectors.toList());
+        List<Request> requests = requestRepository.findAllByEventIdInAndStatus(ids, RequestStatus.CONFIRMED);
+        Map<Long, Long> eventIdToConfirmedCount = requests.stream()
+                .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
+        events.forEach(event -> event.setConfirmedRequests(eventIdToConfirmedCount.getOrDefault(event.getId(), 0L)));
+    }
+
     @Override
     public EventFullDto getEventFullPublic(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.getEventById(eventId);
@@ -391,14 +399,6 @@ public class EventServiceImpl implements EventService {
 
     private void setComfirmedRequestsEventFullDto(List<EventFullDto> events) {
         List<Long> ids = events.stream().map(EventFullDto::getId).collect(Collectors.toList());
-        List<Request> requests = requestRepository.findAllByEventIdInAndStatus(ids, RequestStatus.CONFIRMED);
-        Map<Long, Long> eventIdToConfirmedCount = requests.stream()
-                .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
-        events.forEach(event -> event.setConfirmedRequests(eventIdToConfirmedCount.getOrDefault(event.getId(), 0L)));
-    }
-
-    private void setComfirmedRequestsEventShortDto(List<EventShortDto> events) {
-        List<Long> ids = events.stream().map(EventShortDto::getId).collect(Collectors.toList());
         List<Request> requests = requestRepository.findAllByEventIdInAndStatus(ids, RequestStatus.CONFIRMED);
         Map<Long, Long> eventIdToConfirmedCount = requests.stream()
                 .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
