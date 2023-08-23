@@ -36,10 +36,9 @@ public class CompilationMapper {
 
     public static Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
         return Compilation.builder()
-                .pinned(newCompilationDto.getPinned())
+                .pinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false)
                 .title(newCompilationDto.getTitle())
                 .events(events)
                 .build();
     }
-
 }

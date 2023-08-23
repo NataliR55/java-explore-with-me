@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.exception.ValidationException;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.mapper.UserMapper;
@@ -31,10 +30,8 @@ public class UserServiceImpl implements UserService {
             log.info("Create user {} ", newUserRequest);
             return UserMapper.toUserDto(userRepository.save(user));
         } catch (DataIntegrityViolationException e) {
-            throw new ValidationException(String.format("User with E-mail: %s or name %s already  exist",
+            throw new DataIntegrityViolationException(String.format("User with E-mail: %s or name %s already  exist",
                     newUserRequest.getEmail(), newUserRequest.getName()));
-        } catch (IllegalArgumentException e) {
-            throw new ValidationException("Incorrect request to new user " + newUserRequest);
         }
     }
 

@@ -13,10 +13,10 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class NewUserRequest {
     @NotBlank(message = "Name must be filled!")
-    @Size(min = 2, max = 250)
+    @Size(min = 2, max = 250, message = "Size name must be >=2 and <=250 characters")
     private String name;
     @NotBlank(message = "Email must be filled!")
     @Email(message = "Email must have the format EMAIL!")
-    @Size(min = 6, max = 254)
+    @Size(min = 6, max = 254, message = "Size email must be >=6 and <=254 characters")
     private String email;
 }

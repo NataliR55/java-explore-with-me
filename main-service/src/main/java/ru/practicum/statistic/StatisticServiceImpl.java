@@ -1,7 +1,6 @@
 package ru.practicum.statistic;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.practicum.client.StatsClient;
 import ru.practicum.dto.EndpointHitDto;
@@ -10,7 +9,7 @@ import ru.practicum.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -21,11 +20,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StatisticServiceImpl implements StatisticService {
     private final StatsClient statsClient;
-    @Value("${application.name}")
-    private final String appName;
 
     @Override
     public void addView(HttpServletRequest request) {
+        String appName = "main-server";
         statsClient.addStats(EndpointHitDto.builder()
                 .app(appName)
                 .uri(request.getRequestURI())
@@ -37,7 +35,7 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     public Map<Long, Long> getStatsEvents(List<Event> events) {
         if (events == null || events.isEmpty()) {
-            return null;
+            return Collections.emptyMap();
         }
         List<Long> ids = events.stream()
                 .map(Event::getId)
@@ -45,8 +43,8 @@ public class StatisticServiceImpl implements StatisticService {
         LocalDateTime start = events.stream()
                 .sorted(Comparator.comparing(Event::getCreatedOn))
                 .map(Event::getCreatedOn)
-                .findFirst().orElse(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-        LocalDateTime end = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+                .findFirst().orElse(LocalDateTime.now());
+        LocalDateTime end = LocalDateTime.now();
         String eventsUri = "/events/";
         List<String> uris = ids.stream()
                 .map(id -> eventsUri + id)

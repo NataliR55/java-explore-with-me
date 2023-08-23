@@ -1,6 +1,7 @@
 package ru.practicum.event.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.model.enums.EventSort;
 import ru.practicum.event.model.enums.EventState;
+import ru.practicum.event.model.enums.EventStateAction;
 import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
@@ -43,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -134,23 +136,24 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.getEventById(eventId);
         checkNewEventDate(event.getEventDate(), updateEventDto.getEventDate(), LocalDateTime.now().plusHours(1));
         if (updateEventDto.getStateAction() != null) {
-            switch (updateEventDto.getStateAction()) {
-                case PUBLISH_EVENT:
-                    if (event.getState().equals(EventState.PENDING)) {
-                        event.setState(EventState.PUBLISHED);
-                        event.setPublishedOn(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
-                    } else
-                        throw new ConflictException(String.format(
-                                "Event id:%d cannot publish because it's not in the right state:%s ",
-                                eventId, event.getState()));
-                    break;
-                case REJECT_EVENT:
-                    if (!event.getState().equals(EventState.PUBLISHED)) {
-                        event.setState(EventState.CANCELED);
-                    } else
-                        throw new ConflictException(String.format(
-                                "Event id:%d cannot publish because it's not in the right state:%s ",
-                                eventId, event.getState()));
+
+            if (EventStateAction.PUBLISH_EVENT.equals(updateEventDto.getStateAction())) {
+                if (EventState.PENDING.equals(event.getState())) {
+                    event.setState(EventState.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+                } else {
+                    throw new ConflictException(String.format(
+                            "Event id:%d cannot PUBLISHED because it's not in the right state:%s ",
+                            eventId, event.getState()));
+                }
+            } else if (EventStateAction.REJECT_EVENT.equals(updateEventDto.getStateAction())) {
+                if (!EventState.PUBLISHED.equals(event.getState())) {
+                    event.setState(EventState.CANCELED);
+                } else {
+                    throw new ConflictException(String.format(
+                            "Event id:%d cannot CANCELED because it's not in the right state:%s ",
+                            eventId, event.getState()));
+                }
             }
         }
         if (updateEventDto.getEventDate() != null) {
@@ -194,10 +197,10 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(
                 () -> new NotFoundException(String
                         .format("Event with id: %d and Initiator id: %d is not exists", eventId, userId)));
-        if (!event.getRequestModeration() || event.getParticipantLimit() == 0 || eventRequest.getRequestIds().isEmpty()) {
+        if ((!event.getRequestModeration()) || (event.getParticipantLimit() == 0) || eventRequest.getRequestIds().isEmpty()) {
             return new EventRequestStatusUpdateResult(List.of(), List.of());
         }
-        if (event.getParticipantLimit() <= event.getConfirmedRequests()) {
+        if ((event.getParticipantLimit().longValue()) <= event.getConfirmedRequests()) {
             throw new ConflictException(String.format("Limit on requests for the event with id:%d has been reached",
                     eventId));
         }
@@ -209,12 +212,12 @@ public class EventServiceImpl implements EventService {
 
         long countConfirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         event.setConfirmedRequests(countConfirmed);
-        RequestStatus eventRequestStatus = RequestStatus.valueOf(eventRequest.getStatus().toLowerCase());
-        if (eventRequestStatus.equals(RequestStatus.CONFIRMED)) {
+        RequestStatus eventRequestStatus = RequestStatus.valueOf(eventRequest.getStatus().toUpperCase());
+        if (RequestStatus.CONFIRMED.equals(eventRequestStatus)) {
             List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
             List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
             for (Request request : requests) {
-                if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
+                if (event.getConfirmedRequests() <= event.getParticipantLimit().longValue()) {
                     request.setStatus(RequestStatus.CONFIRMED);
                     confirmedRequests.add(RequestMapper.toParticipationRequestDto(request));
                     requestRepository.save(request);
@@ -227,7 +230,7 @@ public class EventServiceImpl implements EventService {
             }
             eventRepository.save(event);
             return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
-        } else if (eventRequestStatus.equals(RequestStatus.REJECTED)) {
+        } else if (RequestStatus.REJECTED.equals(eventRequestStatus)) {
             return new EventRequestStatusUpdateResult(List.of(), addRejectedRequests(requests, eventRequestStatus));
         }
         return new EventRequestStatusUpdateResult(List.of(), List.of());
@@ -260,10 +263,10 @@ public class EventServiceImpl implements EventService {
             rangeDate[0] = ConvertDataTime.MIN_DATE_TIME;
             rangeDate[1] = ConvertDataTime.MAX_DATE_TIME;
         } else {
-            rangeDate = checkDateTime(rangeStart, rangeStart);
+            rangeDate = checkDateTime(rangeStart, rangeEnd);
         }
         List<Event> events = eventRepository.getEventsAdmin(
-                users, eventStates, categories, rangeStart, rangeEnd, page);
+                users, eventStates, categories, rangeDate[0], rangeDate[1], page);
         Map<Long, Long> views = statisticService.getStatsEvents(events);
         List<EventFullDto> eventFullDto = events.stream()
                 .map(EventMapper::toEventFullDto)
@@ -326,21 +329,18 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> result = events.stream()
                 .map(EventMapper::toEventShortDto)
                 .peek(e -> e.setViews(view.get(e.getId())))
-                .sorted(Comparator.comparing(EventShortDto::getViews))//
                 .collect(Collectors.toList());
         if (EventSort.VIEWS.equals(sort)) {
-            result.sort(Comparator.comparing(EventShortDto::getEventDate));
+            result.sort(Comparator.comparing(EventShortDto::getViews));
         }
         setComfirmedRequestsEventShortDto(result);
-
-
         return result;
     }
 
     @Override
     public EventFullDto getEventFullPublic(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.getEventById(eventId);
-        if ((event.getState() != null) || (!event.getState().equals(EventState.PUBLISHED))) {
+        if ((event.getState() != null) && (!EventState.PUBLISHED.equals(event.getState()))) {
             throw new NotFoundException(String.format("Event id:%d is not PUBLISHED", eventId));
         }
         statisticService.addView(request);
@@ -353,7 +353,7 @@ public class EventServiceImpl implements EventService {
 
     private void checkRequestStatus(List<Request> requests, List<RequestStatus> requestStatus) {
         for (Request request : requests) {
-            if (requestStatus.stream().filter(status -> request.getStatus().equals(status))
+            if (requestStatus.stream().filter(status -> status.equals(request.getStatus()))
                     .findAny().orElse(null) == null) {
                 throw new ConflictException(String.format(
                         "Status request with id:%d cannot change because the current status:%s ",
@@ -380,17 +380,17 @@ public class EventServiceImpl implements EventService {
 
     private void checkNewEventDate(LocalDateTime eventDateTime, LocalDateTime newEventDateTime, LocalDateTime minDateTime) {
         if (eventDateTime != null && eventDateTime.isBefore(minDateTime)) {
-            throw new ConflictException(String.format("Old Event date-time %s must by later than %s",
+            throw new ValidationException(String.format("Old Event date-time %s must by later than %s",
                     eventDateTime, minDateTime));
         }
-        if (eventDateTime != null && newEventDateTime.isBefore(minDateTime)) {
-            throw new ConflictException(String.format("New Event date-time %s must by later than %s",
+        if (newEventDateTime != null && newEventDateTime.isBefore(minDateTime)) {
+            throw new ValidationException(String.format("New Event date-time %s must by later than %s",
                     newEventDateTime, minDateTime));
         }
     }
 
     private void setComfirmedRequestsEventFullDto(List<EventFullDto> events) {
-        List<Long> ids = events.stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> ids = events.stream().map(EventFullDto::getId).collect(Collectors.toList());
         List<Request> requests = requestRepository.findAllByEventIdInAndStatus(ids, RequestStatus.CONFIRMED);
         Map<Long, Long> eventIdToConfirmedCount = requests.stream()
                 .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
@@ -398,7 +398,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void setComfirmedRequestsEventShortDto(List<EventShortDto> events) {
-        List<Long> ids = events.stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> ids = events.stream().map(EventShortDto::getId).collect(Collectors.toList());
         List<Request> requests = requestRepository.findAllByEventIdInAndStatus(ids, RequestStatus.CONFIRMED);
         Map<Long, Long> eventIdToConfirmedCount = requests.stream()
                 .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));

@@ -30,6 +30,7 @@ public class EventMapper {
                 .location(location)
                 .paid(eventDto.getPaid())
                 .participantLimit(eventDto.getParticipantLimit() == null ? 0 : eventDto.getParticipantLimit())
+                .confirmedRequests(0L)
                 .requestModeration(eventDto.getRequestModeration())
                 .state(EventState.PENDING)
                 .title(eventDto.getTitle())

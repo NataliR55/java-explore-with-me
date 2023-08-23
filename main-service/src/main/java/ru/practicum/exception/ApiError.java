@@ -17,9 +17,9 @@ public class ApiError {
 
     public ApiError(Exception e, String reason, String status) {
         log.error(e.getMessage(), e);
-        this.message = e.getMessage();
-        this.reason = reason;
         this.status = status;
+        this.reason = reason;
+        this.message = e.getMessage();
         this.timestamp = LocalDateTime.now().format(ConvertDataTime.DATE_TIME_FORMATTER);
     }
 }

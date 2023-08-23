@@ -26,7 +26,6 @@ public class UpdateEventUserRequestDto {
     private String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = ConvertDataTime.DATE_TIME_PATTERN)
     private LocalDateTime eventDate;
-    @Valid
     private LocationDto location;
     private Boolean paid;
     @PositiveOrZero

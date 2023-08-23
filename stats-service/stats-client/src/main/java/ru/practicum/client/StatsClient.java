@@ -11,8 +11,6 @@ import ru.practicum.dto.Constants;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import java.util.Collections;
@@ -37,9 +35,9 @@ public class StatsClient {
     public List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         String startStr = start.format(Constants.DATE_TIME_FORMATTER);
         String endStr = end.format(Constants.DATE_TIME_FORMATTER);
-        Map<String, Object> parameters = Map.of("start", URLEncoder.encode(startStr, StandardCharsets.UTF_8),
-                "end", URLEncoder.encode(endStr, StandardCharsets.UTF_8),
-                "uris", uris != null ? uris.toString() : "null",
+        Map<String, Object> parameters = Map.of("start", startStr,
+                "end", endStr,
+                "uris", uris != null ? String.join(",", uris) : "null",
                 "unique", unique.toString());
         ViewStatsDto[] viewStatsDto = restTemplate.getForObject(
                 serverUrl.concat("/stats?start={start}&end={end}&uris={uris}&unique={unique}"),

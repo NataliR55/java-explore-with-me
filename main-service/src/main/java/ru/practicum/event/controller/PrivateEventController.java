@@ -1,6 +1,7 @@
 package ru.practicum.event.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -14,11 +15,13 @@ import ru.practicum.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.ParticipationRequestDto;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -37,7 +40,9 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventUser(@PathVariable(name = "userId") @Positive Long userId,
                                         @PathVariable(name = "eventId") @Positive Long eventId,
-                                        @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequestDto) {
+                                        @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequestDto,
+                                        HttpServletRequest request) {
+       log.info("PATCH /users/{userId}/events/{eventId} with params: {}.", request.getRequestURI());
         return eventService.updateEventUser(userId, eventId, updateEventUserRequestDto);
     }
 
