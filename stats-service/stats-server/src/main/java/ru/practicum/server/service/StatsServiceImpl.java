@@ -1,20 +1,19 @@
 package ru.practicum.server.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.server.exception.ValidationException;
 import ru.practicum.server.mapper.EndpointHitMapper;
-import ru.practicum.server.mapper.ViewStatsMapper;
-import ru.practicum.server.model.ViewStats;
 import ru.practicum.server.repository.StatsRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
@@ -31,8 +30,8 @@ public class StatsServiceImpl implements StatsService {
         if (end.isBefore(start)) {
             throw new ValidationException("End time cannot be early than Start time!!!");
         }
-        List<ViewStats> viewStats = unique ? statsRepository.getViewStatsWithUniqueIp(start, end, uris) :
+        List<ViewStatsDto> viewStatsDto = unique ? statsRepository.getViewStatsWithUniqueIp(start, end, uris) :
                 statsRepository.getViewStatsWithAnyIp(start, end, uris);
-        return viewStats.stream().map(ViewStatsMapper::toDto).collect(Collectors.toList());
+        return viewStatsDto;
     }
 }
