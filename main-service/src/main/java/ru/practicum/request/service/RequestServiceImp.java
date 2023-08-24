@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.event.model.enums.EventState;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
@@ -18,8 +19,6 @@ import ru.practicum.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +30,9 @@ public class RequestServiceImp implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        User requester = userRepository.getUserById(userId);
-        Event event = eventRepository.getEventById(eventId);
+        User requester = getUserById(userId);
+        Event event = eventRepository.findById(eventId).orElseThrow(()
+                -> new NotFoundException(String.format("Event with id: %d is not exists!", eventId)));
 
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException(String.format("Request with user id: %d and event id: %d already exists!",
@@ -63,12 +63,13 @@ public class RequestServiceImp implements RequestService {
     @Transactional
     @Override
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        userRepository.existsUserById(userId);
+        existsUserById(userId);
         if (!requestRepository.existsByIdAndRequesterId(requestId, userId)) {
             throw new ConflictException(String.format("Request with request id: %d and user id: %d is not exists!",
                     requestId, userId));
         }
-        Request request = requestRepository.getRequestById(requestId);
+        Request request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException(String.format("Request with id: %s not exist!", requestId)));
 
         request.setStatus(RequestStatus.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
@@ -76,10 +77,18 @@ public class RequestServiceImp implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getUserRequests(Long userId) {
-        userRepository.existsUserById(userId);
-        return requestRepository.findAllByRequesterId(userId)
-                .stream()
-                .map(RequestMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+        existsUserById(userId);
+        return RequestMapper.toListParticipationRequestDto(requestRepository.findAllByRequesterId(userId));
+    }
+
+    private void existsUserById(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException(String.format("User with id: %s not exist!", userId));
+        }
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id: %s not exist!", userId)));
     }
 }

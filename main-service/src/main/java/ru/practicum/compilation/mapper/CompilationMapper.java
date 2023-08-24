@@ -7,6 +7,7 @@ import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,5 +41,10 @@ public class CompilationMapper {
                 .title(newCompilationDto.getTitle())
                 .events(events)
                 .build();
+    }
+
+    public static List<CompilationDto> toListCompilationDto(List<Compilation> compilations) {
+        return compilations.stream().map(CompilationMapper::toCompilationDto)
+                .collect(Collectors.toList());
     }
 }

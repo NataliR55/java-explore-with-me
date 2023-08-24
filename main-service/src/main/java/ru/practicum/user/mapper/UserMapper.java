@@ -5,6 +5,9 @@ import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.user.model.User;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserMapper {
     private UserMapper() {
     }
@@ -23,6 +26,12 @@ public class UserMapper {
                 .name(user.getName())
                 .email(user.getEmail())
                 .build();
+    }
+
+    public static List<UserDto> toListUserDto(List<User> users) {
+        return users.stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     public static UserShortDto toUserShortDto(User user) {

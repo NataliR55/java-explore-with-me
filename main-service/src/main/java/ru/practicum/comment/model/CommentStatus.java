@@ -1,4 +1,4 @@
-package ru.practicum.comment;
+package ru.practicum.comment.model;
 
 public enum CommentStatus {
     PENDING,

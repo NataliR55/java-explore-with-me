@@ -15,6 +15,7 @@ import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.NotFoundException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +44,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto updateCompilation(Long compilationId, UpdateCompilationDto updateCompilation) {
-        Compilation compilation = compilationRepository.getCompilationById(compilationId);
+        Compilation compilation = getCompilationById(compilationId);
         if (updateCompilation.getTitle() != null && !updateCompilation.getTitle().isBlank()) {
             compilation.setTitle(updateCompilation.getTitle());
         }
@@ -59,7 +60,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteCompilationById(Long compilationId) {
-        compilationRepository.delete(compilationRepository.getCompilationById(compilationId));
+        compilationRepository.delete(getCompilationById(compilationId));
     }
 
     @Override
@@ -71,13 +72,17 @@ public class CompilationServiceImpl implements CompilationService {
         } else {
             compilations = compilationRepository.findAllByPinned(pinned, page);
         }
-        return compilations.stream()
-                .map(CompilationMapper::toCompilationDto)
-                .collect(Collectors.toList());
+        return CompilationMapper.toListCompilationDto(compilations);
     }
 
     @Override
-    public CompilationDto getCompilationById(Long compilationId) {
-        return CompilationMapper.toCompilationDto(compilationRepository.getCompilationById(compilationId));
+    public Compilation getCompilationById(Long compilationId) {
+        return compilationRepository.findById(compilationId).orElseThrow(() ->
+                new NotFoundException(String.format("Compilation with id: %d is not exists!", compilationId)));
+    }
+
+    @Override
+    public CompilationDto getCompilationDtoById(Long compilationId) {
+        return CompilationMapper.toCompilationDto(getCompilationById(compilationId));
     }
 }

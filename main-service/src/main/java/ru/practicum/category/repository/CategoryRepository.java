@@ -5,7 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.category.model.Category;
-import ru.practicum.exception.NotFoundException;
+
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -14,14 +15,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "AND (:#{#categoryId == null} = true OR c.id != :categoryId)")
     Long countByName(@Param("name") String name, @Param("categoryId") Long categoryId);
 
-    default Category getCategoryById(Long id) {
-        return findById(id).orElseThrow(()
-                -> new NotFoundException(String.format("Category with id: %d is not exists!", id)));
-    }
-
-    default void categoryExists(Long id) {
-        if (!existsById(id)) {
-            throw new NotFoundException(String.format("Category with id: %d is not exists!", id));
-        }
-    }
+    Optional<Category> findById(Long id);
 }

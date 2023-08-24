@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import ru.practicum.category.model.Category;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.enums.EventState;
-import ru.practicum.exception.NotFoundException;
 import ru.practicum.request.model.enums.RequestStatus;
 
 import java.time.LocalDateTime;
@@ -17,11 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    default Event getEventById(Long id) {
-        return findById(id).orElseThrow(()
-                -> new NotFoundException(String.format("Event with id: %d is not exists!", id)));
-    }
-
     boolean existsByCategory(Category category);
 
     boolean existsByIdAndInitiatorId(Long eventId, Long userId);
@@ -39,11 +33,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and (:#{#categories == null} = true or e.category.id in :categories) " +
             "and (e.eventDate BETWEEN :rangeStart and :rangeEnd)")
     List<Event> getEventsAdmin(@Param("users") List<Long> users,
-                                                           @Param("states") List<EventState> states,
-                                                           @Param("categories") List<Long> categories,
-                                                           @Param("rangeStart") LocalDateTime rangeStart,
-                                                           @Param("rangeEnd") LocalDateTime rangeEnd,
-                                                           Pageable pageable);
+                               @Param("states") List<EventState> states,
+                               @Param("categories") List<Long> categories,
+                               @Param("rangeStart") LocalDateTime rangeStart,
+                               @Param("rangeEnd") LocalDateTime rangeEnd,
+                               Pageable pageable);
 
     @Query("select e from Event e " +
             "left JOIN Request r on e.id = r.event.id " +
