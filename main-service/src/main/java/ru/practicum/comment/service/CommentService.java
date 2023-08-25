@@ -1,29 +1,24 @@
 package ru.practicum.comment.service;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.comment.dto.UpdateCommentAdminDto;
-import ru.practicum.comment.dto.UpdateCommentUserDto;
+import ru.practicum.comment.dto.*;
 
 import java.util.List;
 
 public interface CommentService {
 
-    CommentDto createComment(NewCommentDto newCommentDto, Long userId, Long eventId);
+    CommentDto createCommentPrivate(NewCommentDto newCommentDto, Long authorId, Long eventId);
 
-    CommentDto updateCommentByUser(UpdateCommentUserDto updateCommentUserDto, Long userId, Long commentId);
+    CommentDto updateCommentPrivate(UpdateCommentDto updateCommentUserDto, Long commentId, Long authorId);
 
-    CommentDto updateCommentByAdmin(Long commentId, UpdateCommentAdminDto commentDto);
+    CommentDto getCommentPrivate(Long commentId, Long authorId);
 
-    CommentDto getCommentsByIdByUser(Long userId, Long commentId);
+    void deleteCommentPrivate(Long commentId, Long authorId);
 
-    void deleteCommentByUser(Long userId, Long commentId);
+    CommentDto updateCommentAdmin(Long commentId, UpdateCommentDto commentDto);
 
-    void deleteCommentByAdmin(Long commentId);
+    void deleteCommentAdmin(Long commentId);
 
-    List<CommentDto> getAllCommentByEvent(Long eventId, Pageable pageable);
+    List<CommentDto> getAllAdmin(Long eventId, int from, int size);
 
-    List<CommentDto> getAllByAdmin(Long eventId, PageRequest page);
+    List<CommentShortDto> getAllCommentEventPublic(Long eventId, int from, int size);
 }

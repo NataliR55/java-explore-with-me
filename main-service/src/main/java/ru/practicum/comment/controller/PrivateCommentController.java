@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.comment.dto.UpdateCommentUserDto;
+import ru.practicum.comment.dto.UpdateCommentDto;
 import ru.practicum.comment.service.CommentService;
 
 import javax.validation.Valid;
@@ -20,29 +20,30 @@ public class PrivateCommentController {
 
     @PostMapping("/{eventId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto create(@RequestBody @Valid NewCommentDto newCommentDto,
-                             @PathVariable(value = "userId") Long userId,
-                             @PathVariable(value = "eventId") Long eventId) {
-                return commentService.createComment(newCommentDto, userId, eventId);
+    public CommentDto createComment(@RequestBody @Valid NewCommentDto newCommentDto,
+                                    @PathVariable(value = "userId") Long userId,
+                                    @PathVariable(value = "eventId") Long eventId) {
+        return commentService.createCommentPrivate(newCommentDto, userId, eventId);
     }
 
     @PatchMapping("/{commentId}")
-    public CommentDto update(@RequestBody @Valid UpdateCommentUserDto updateCommentUserDto,
-                             @PathVariable(value = "userId") Long userId,
-                             @PathVariable(value = "commentId") Long commentId) {
-        return commentService.updateCommentByUser(updateCommentUserDto, userId, commentId);
+    public CommentDto updateComment(@RequestBody @Valid UpdateCommentDto updateCommentDto,
+                                    @PathVariable(value = "userId") Long userId,
+                                    @PathVariable(value = "commentId") Long commentId) {
+        return commentService.updateCommentPrivate(updateCommentDto, commentId, userId);
     }
 
     @GetMapping("/{commentId}")
-    public CommentDto getById(@PathVariable(value = "userId") Long userId,
-                              @PathVariable(value = "commentId") Long commentId) {
-        return commentService.getCommentsByIdByUser(userId, commentId);
+    @ResponseStatus(HttpStatus.OK)
+    public CommentDto getComment(@PathVariable(value = "userId") Long userId,
+                                 @PathVariable(value = "commentId") Long commentId) {
+        return commentService.getCommentPrivate(commentId, userId);
     }
 
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable(value = "userId") Long userId,
-                           @PathVariable(value = "commentId") Long commentId) {
-        commentService.deleteCommentByUser(userId, commentId);
+    public void deleteComment(@PathVariable(value = "userId") Long userId,
+                              @PathVariable(value = "commentId") Long commentId) {
+        commentService.deleteCommentPrivate(commentId, userId);
     }
 }
