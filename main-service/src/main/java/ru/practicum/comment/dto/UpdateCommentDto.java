@@ -5,19 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.comment.model.CommentStateAction;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCommentUserDto {
-    @NotBlank
-    @Size(min = 10, max = 500)
+public class UpdateCommentDto {
+    @Size(min = 5, max = 2000)
     private String text;
-    @NotNull
-    private CommentStateAction state;
+    private CommentStateAction stateAction;
 }
